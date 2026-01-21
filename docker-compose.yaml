@@ -1,0 +1,27 @@
+# nginx proxy address - http://172.17.0.1:8107
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  doppler:
+    image: dopplerhq/cli:latest
+    container_name: doppler-app
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - doppler
+    ports:
+      - "8107:3000"
+    environment:
+      TZ: ${TZ:-America/New_York}
+    volumes:
+      - ./rootfs/config/doppler:/config
+      - ./rootfs/data/doppler:/data
+
+networks:
+  doppler:
+    external: false
