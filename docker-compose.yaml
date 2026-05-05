@@ -19,8 +19,8 @@ services:
     environment:
       TZ: ${TZ:-America/New_York}
     volumes:
-      - ./rootfs/config/doppler:/config
-      - ./rootfs/data/doppler:/data
+      - ./volumes/config/doppler:/config
+      - ./volumes/data/doppler:/data
 
 networks:
   doppler:
