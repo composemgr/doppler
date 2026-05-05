@@ -45,8 +45,8 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/config/doppler` - Data storage
-- `./rootfs/data/doppler` - Data storage
+- `./volumes/config/doppler` - Data storage
+- `./volumes/data/doppler` - Data storage
 
 ## 🔍 Logging
 
