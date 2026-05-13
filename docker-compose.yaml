@@ -1,5 +1,6 @@
 # nginx proxy address - http://172.17.0.1:8107
 
+name: doppler
 x-logging: &default-logging
   driver: json-file
   options:
@@ -9,19 +10,22 @@ x-logging: &default-logging
 services:
   doppler:
     image: dopplerhq/cli:latest
+    pull_policy: always
     container_name: doppler-app
-    restart: unless-stopped
+    restart: always
     logging: *default-logging
     networks:
       - doppler
     ports:
-      - "8107:3000"
+      - "172.17.0.1:8107:3000"
     environment:
       TZ: ${TZ:-America/New_York}
+      DOPPLER_TOKEN: ${DOPPLER_TOKEN:-your_doppler_token_here}
     volumes:
-      - ./volumes/config/doppler:/config
+      - ./volumes/config/doppler:/root/.doppler
       - ./volumes/data/doppler:/data
 
 networks:
   doppler:
+    name: doppler
     external: false
