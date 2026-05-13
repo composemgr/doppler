@@ -1,4 +1,6 @@
-# nginx proxy address - http://172.17.0.1:8107
+# dopplerhq/cli is a CLI tool — no web server, no exposed ports
+# Use: docker run --rm dopplerhq/cli run -- <your-command>
+# Or as a sidecar to inject secrets into other services
 
 name: doppler
 x-logging: &default-logging
@@ -8,48 +10,22 @@ x-logging: &default-logging
     max-file: "1"
 
 services:
-  doppler:
+  app:
     image: dopplerhq/cli:latest
     pull_policy: always
     container_name: doppler-app
-    restart: always
+    restart: "no"
     logging: *default-logging
-    networks:
-      - doppler
-      - proxy
-      - cloudflare
-    ports:
-      - "172.17.0.1:8107:3000"
     environment:
       TZ: ${TZ:-America/New_York}
-      DOPPLER_TOKEN: ${DOPPLER_TOKEN:-your_doppler_token_here}
+      DOPPLER_TOKEN: ${APP_API_TOKEN:-your_doppler_service_token_here}
       CONTAINER_NAME: doppler-app
-      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     volumes:
       - ./volumes/config/doppler:/root/.doppler
-      - ./volumes/data/doppler:/data
-    labels:
-      - 'traefik.enable=true'
-      - 'cloudflare.enable=true'
-      - 'traefik.docker.network=proxy'
-      - 'cloudflare.service=http://doppler-app:3000'
-      - 'cloudflare.hostname=doppler.${CLOUDFLARE_ZONE_NAME:-}'
-      - 'traefik.http.routers.doppler-app.entrypoints=http'
-      - 'traefik.http.routers.doppler-app-secure.tls=true'
-      - 'traefik.http.routers.doppler-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.middlewares.doppler-app-https-redirect.redirectscheme.scheme=https'
-      - 'traefik.http.routers.doppler-app.middlewares=doppler-app-https-redirect'
-      - 'traefik.http.routers.doppler-app-secure.entrypoints=https'
-      - 'traefik.http.routers.doppler-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
-      - 'traefik.http.routers.doppler-app-secure.tls.certresolver=cloudflare'
-      - 'traefik.http.routers.doppler-app-secure.service=doppler-app'
-      - 'traefik.http.services.doppler-app.loadbalancer.server.port=3000'
+    networks:
+      - doppler
 
 networks:
   doppler:
     name: doppler
     external: false
-  proxy:
-    external: true
-  cloudflare:
-    external: true
