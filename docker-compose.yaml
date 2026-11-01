@@ -1,27 +1,31 @@
-# dopplerhq/cli is a CLI tool — no web server, no exposed ports
-# Use: docker run --rm dopplerhq/cli run -- <your-command>
-# Or as a sidecar to inject secrets into other services
+# dopplerhq/cli is a CLI tool - it has no web server and no exposed ports.
+# See the README for CLI usage examples.
 
 name: doppler
 x-logging: &default-logging
-  driver: json-file
   options:
-    max-size: "5m"
-    max-file: "1"
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
 
 services:
   app:
     image: dopplerhq/cli:latest
-    pull_policy: always
     container_name: doppler-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
     restart: "no"
+    pull_policy: always
     logging: *default-logging
     environment:
       TZ: ${TZ:-America/New_York}
-      DOPPLER_TOKEN: ${APP_API_TOKEN:-your_doppler_service_token_here}
       CONTAINER_NAME: doppler-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      DOPPLER_TOKEN: ${DOPPLER_TOKEN:-replace-with-a-random-password}
+      DOPPLER_PROJECT: doppler
+      DOPPLER_CONFIG: ${DOPPLER_CONFIG:-dev}
     volumes:
-      - ./volumes/config/doppler:/root/.doppler
+      - './volumes/config/doppler:/root/.doppler:z'
     networks:
       - doppler
 

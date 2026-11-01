@@ -1,0 +1,35 @@
+name: doppler
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: dopplerhq/cli:latest
+    container_name: doppler-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: "no"
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CONTAINER_NAME: doppler-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+      DOPPLER_TOKEN: ${DOPPLER_TOKEN:-replace-with-a-random-password}
+      DOPPLER_PROJECT: doppler
+      DOPPLER_CONFIG: ${DOPPLER_CONFIG:-dev}
+    volumes:
+      - './volumes/config/doppler:/root/.doppler:z'
+    networks:
+      - doppler
+      - cloudflare
+
+networks:
+  doppler:
+    name: doppler
+    external: false
+  cloudflare:
+    external: true
